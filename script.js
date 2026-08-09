@@ -9,6 +9,7 @@ const products = [
   { id: 8, name: 'Set Descubrimiento', category: 'Sets', type: '5 decants · 2 ml', price: 38900, notes: ['Para explorar', 'A medida'], tone: '#a57545', mark: 'OL' }
 ];
 let selectedCategory = 'Todos';
+let selectedOccasion = 'Todos';
 let cart = [];
 const money = value => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(value);
 const grid = document.querySelector('#product-grid');
@@ -16,7 +17,8 @@ const total = document.querySelector('#product-total');
 
 function renderProducts() {
   const query = document.querySelector('#search').value.toLowerCase().trim();
-  const shown = products.filter(p => (selectedCategory === 'Todos' || p.category === selectedCategory) && `${p.name} ${p.category} ${p.notes.join(' ')}`.toLowerCase().includes(query));
+  const occasions = { 1: ['Tarde', 'Citas'], 2: ['Noche', 'Citas'], 3: ['Noche', 'Citas'], 4: ['Tarde', 'Citas'], 5: ['Noche', 'Citas'], 6: ['Mañana', 'Tarde', 'Versátil'], 7: ['Noche', 'Versátil'], 8: ['Versátil', 'Mañana', 'Tarde'] };
+  const shown = products.filter(p => (selectedCategory === 'Todos' || p.category === selectedCategory) && (selectedOccasion === 'Todos' || occasions[p.id].includes(selectedOccasion)) && `${p.name} ${p.category} ${p.notes.join(' ')}`.toLowerCase().includes(query));
   total.textContent = `${shown.length} fragancias seleccionadas`;
   grid.innerHTML = shown.map(p => `<article class="product"><div class="product-image" style="--card:${p.tone}22"><div class="mini-bottle" style="--tone:${p.tone}">${p.mark}</div></div><div class="product-info"><span class="badge">${p.type}</span><h3>${p.name}</h3><div class="notes">${p.notes.map(note => `<span>${note}</span>`).join('')}</div><div class="product-bottom"><span class="price">${money(p.price)}</span><button class="add" data-id="${p.id}">Agregar +</button></div></div></article>`).join('');
   document.querySelector('#empty-state').hidden = shown.length > 0;
@@ -31,6 +33,7 @@ function openCart() { document.querySelector('#cart-panel').classList.add('open'
 function closeCart() { document.querySelector('#cart-panel').classList.remove('open'); document.querySelector('#overlay').classList.remove('open'); }
 document.querySelector('#search').addEventListener('input', renderProducts);
 document.querySelector('#category-pills').addEventListener('click', event => { if (!event.target.dataset.category) return; selectedCategory = event.target.dataset.category; document.querySelectorAll('.category-pills button').forEach(b => b.classList.toggle('active', b === event.target)); renderProducts(); });
+document.querySelector('#occasion-pills').addEventListener('click', event => { if (!event.target.dataset.occasion) return; selectedOccasion = event.target.dataset.occasion; document.querySelectorAll('.occasion-pills button').forEach(b => b.classList.toggle('active', b === event.target)); renderProducts(); });
 grid.addEventListener('click', event => { const id = Number(event.target.dataset.id); if (!id) return; cart.push(id); renderCart(); openCart(); });
 document.querySelector('#cart-items').addEventListener('click', event => { const index = event.target.dataset.index; if (index === undefined) return; cart.splice(Number(index), 1); renderCart(); });
 document.querySelector('#open-cart').addEventListener('click', openCart); document.querySelector('#close-cart').addEventListener('click', closeCart); document.querySelector('#overlay').addEventListener('click', closeCart);
